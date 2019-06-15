@@ -1,0 +1,212 @@
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Test</title>
+</head>
+<body>
+<div id="app">
+    <!-- entry point -->
+    <div v-if="user===null">
+        <!-- buttons reg/login -->
+        <div>
+            <button v-if="state_reg===false" v-on:click="state_reg=true;">Регистрация</button>
+            <button v-else v-on:click="state_reg=false;">Вход</button>
+        </div>
+        <!-- login -->
+        <div v-if="state_reg===false">
+            <p>Вход</p>
+            <input v-model="email" placeholder="email">
+            <input v-model="pass" placeholder="password">
+            <p v-if="error != null">{{ error }}</p>
+            <button v-on:click="submit_form">Submit</button>
+        </div>
+        <!-- registr -->
+        <div v-else>
+            <p>Регистрация</p>
+            <input v-model="email" placeholder="email">
+            <input v-model="pass" placeholder="password">
+            <div v-if="code!=null">
+                <input v-model="code" placeholder="Введите код из сообщения по электронной почте">
+                <button v-on:click="submit_form_code">Проверить код и закончить регистрацию</button>
+            </div>
+            <p v-if="error!=null">{{ error }}</p>
+            <button v-on:click="submit_form_reg">Отправить код</button>
+        </div>
+    </div>
+
+    <!-- personal area -->
+    <div v-else>
+        <!-- menu for account -->
+        <div>
+            <button v-on:click="account_state=0;">Профиль</button>
+            <button v-on:click="account_state=1; get_history()">История заказов</button>
+            <button v-on:click="account_state=2; get_balance()">Баланс</button>
+            <button v-on:click="user=null; change_user=null;">Выход</button>
+        </div>
+        <!-- main account page with acc info -->
+        <div v-if="account_state===0">
+            <p>Your account</p>
+            <ul v-if="change_state===false">
+                <li>{{ user.name }}</li>
+                <li>{{ user.email }}</li>
+                <li>{{ user.password }}</li>
+                <li><button v-on:click="change_state=true">Change</button></li>
+            </ul>
+            <ul v-else>
+                <li><input v-model="change_user.name" value="user.name"></li>
+                <li><input v-model="change_user.email" value="user.email"></li>
+                <li><input v-model="change_user.password" value="user.password"></li>
+                <li><button v-on:click="submit_change_user_data">Complete changes!</button></li>
+            </ul>
+        </div>
+        <!-- page with history etc-->
+        <div v-else-if="account_state===1">
+            <p>History</p>
+            <ul v-if="user_history!=null">
+                <li v-for="item in user_history">
+                    {{ item.date }} {{ item.service }}{{ item.company }} {{ item.value }}
+              </li>
+            </ul>
+        </div>
+        <!-- page with money etc-->
+        <div v-else>
+            <p>Balance</p>
+            <h2 v-if="user_history!=null">Ваш баланс: {{ user_history.balance }}</h2>
+            <ul v-if="user_balance!=null">
+                <li v-for="item in user_balance.history">
+                    {{ item.date }} {{ item.action }}{{ item.value }}
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<script src="https://unpkg.com/vue"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<!-- <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script> -->
+<script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+          email: '',
+          pass: '',
+          user: null,
+          state_reg: false,
+          code: null,
+          change_state: false,
+          change_user: null,
+          error: null,
+          account_state: 0,
+          user_history: null,
+          user_balance: null
+      },
+      methods: {
+          //submit login form
+            submit_form: async function (event) {
+                  axios({
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                url: '/api/v1/auth',
+                data: {
+                    email: this.email,
+                    password: this.pass
+                }}).then(function (response) {
+                    if (response.data['error']!='error') {
+                        app.user = response.data;
+                        app.change_user = response.data
+                        app.error = null;
+                    }
+                    else {
+                        app.error = 'password/email error'
+                    }
+                }).catch(function (error) {
+                    app.user = error
+                });
+                },
+          //submit registration form
+            submit_form_reg: async function (event) {
+                  axios({
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                url: '/api/v1/registration',
+                data: {
+                    email: this.email,
+                    password: this.pass
+                }}).then(function (response) {
+                    app.code=1;
+                }).catch(function (error) {
+                    app.code=error
+                });
+                },
+          // submit form with email code
+            submit_form_code: async function (event) {
+                  axios({
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                url: '/api/v1/code_approve',
+                data: {
+                    code:this.code
+                }}).then(function (response) {
+                    if (response.data['error']!='error') {
+                        app.state_reg = true;
+                        app.user = response.data;
+                        app.change_user = app.user
+                    }
+                    else {
+                        app.error = 'code error'
+                    }
+                }).catch(function (error) {
+                    app.user=error;
+                });
+                },
+          // submit user data changing form
+            submit_change_user_data: async function (event) {
+                axios({
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    url: '/api/v1/user',
+                    data:  app.change_user
+                    }).then(function (response) {
+                        app.change_state = false;
+                    }).catch(function (error) {
+                        console.log('123')
+                    });
+                },
+          // get balance from api
+            get_balance: async function (event) {
+                  axios({
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json', 'scode':this.user.scode },
+                url: '/api/v1/user/'+this.user.id.toString()+'/balance',
+                }).then(function (response) {
+                    if (response.data['error']!='error') {
+                        app.user_balance=response.data
+                    }
+                    else {
+                        app.user_balance='error'
+                    }
+                }).catch(function (error) {
+                    app.user = error
+                });
+                },
+          // get history from api
+            get_history: async function (event) {
+                  axios({
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json', 'scode':this.user.scode },
+                url: '/api/v1/user/'+this.user.id.toString()+'/history',
+                }).then(function (response) {
+                    if (response.data['error']!='error') {
+                        app.user_history=response.data
+                    }
+                    else {
+                        app.user_history='error'
+                    }
+                }).catch(function (error) {
+                    app.user = error
+                });
+                }
+      }
+    })
+</script>
+</body>
+</html>
