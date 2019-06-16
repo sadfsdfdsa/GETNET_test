@@ -9,6 +9,7 @@ import random
 # Frontend реализован с помощью подключаемого ядра Vue, но не сделан Router.
 # Запросы к API реализованы согласно REST: GET, POST, PUT, не реализованы: PATCH, DELETE.
 # Базовый пользователь: sh@mail.ru 123; После регистрации сбрасывается!
+# Не реализована эмуляция кнопки "назад" на фронте, не реализована эмуляция смены url адресов для удобства использования.
 
 
 # custom flask app without basic templates (error with {{vue variables}}
