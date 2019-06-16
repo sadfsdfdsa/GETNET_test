@@ -52,7 +52,7 @@
             <button v-on:click="account_state=0;">Профиль</button>
             <button v-on:click="account_state=1; get_history()">История заказов</button>
             <button v-on:click="account_state=2; get_balance()">Баланс</button>
-            <button v-on:click="user=null; change_user=null;">Выход</button>
+            <button v-on:click="user=null; change_user=null; state_reg=false;">Выход</button>
         </div>
         <!-- main account page with acc info -->
         <div v-if="account_state===0">
