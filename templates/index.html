@@ -82,7 +82,7 @@
         <!-- page with money etc-->
         <div v-else>
             <h2>Balance</h2>
-            <h3 v-if="user_history!=null">Ваш баланс: {{ user_history.balance }}</h3>
+            <h3 v-if="user_balance!=null">Ваш баланс: {{ user_balance.balance }}</h3>
             <ul v-if="user_balance!=null">
                 <li v-for="item in user_balance.history">
                     {{ item.date }} {{ item.action }}{{ item.value }}
