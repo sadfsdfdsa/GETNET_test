@@ -1,41 +1,52 @@
 <html>
 <head>
-<meta charset="utf-8" />
-<title>Test</title>
+    <meta charset="utf-8" />
+    <title>Test</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 </head>
 <body>
 <div id="app">
-    <!-- entry point -->
-    <div v-if="user===null">
-        <!-- buttons reg/login -->
-        <div>
-            <button v-if="state_reg===false" v-on:click="state_reg=true;">Регистрация</button>
-            <button v-else v-on:click="state_reg=false;">Вход</button>
-        </div>
-        <!-- login -->
-        <div v-if="state_reg===false">
-            <p>Вход</p>
-            <input v-model="email" placeholder="email">
-            <input v-model="pass" placeholder="password">
-            <p v-if="error != null">{{ error }}</p>
-            <button v-on:click="submit_form">Submit</button>
-        </div>
-        <!-- registr -->
-        <div v-else>
-            <p>Регистрация</p>
-            <input v-model="email" placeholder="email">
-            <input v-model="pass" placeholder="password">
-            <div v-if="code!=null">
-                <input v-model="code" placeholder="Введите код из сообщения по электронной почте">
-                <button v-on:click="submit_form_code">Проверить код и закончить регистрацию</button>
+    <div class="container">
+        <!-- entry point -->
+        <div v-if="user===null">
+            <!-- buttons reg/login -->
+            <div>
+                <button v-if="state_reg===false" v-on:click="state_reg=true; error=null">Регистрация</button>
+                <button v-else v-on:click="state_reg=false; error=null">Вход</button>
             </div>
-            <p v-if="error!=null">{{ error }}</p>
-            <button v-on:click="submit_form_reg">Отправить код</button>
+            <!-- login -->
+            <div v-if="state_reg===false">
+                <h2>Вход</h2>
+                  <div class="form-group row">
+                      <div class="col-xs-2">
+                        <input v-model="email" class="form-control input-sm" placeholder="email">
+                        <input v-model="pass" class="form-control input-sm" placeholder="password">
+                      </div>
+                </div>
+                <p v-if="error != null">{{ error }}</p>
+                <button v-on:click="submit_form">Submit</button>
+            </div>
+            <!-- registr -->
+            <div v-else>
+                <h2>Регистрация</h2>
+                <div class="form-group row">
+                    <div class="col-xs-2">
+                        <input v-model="email" class="form-control input-sm" placeholder="email">
+                        <input v-model="pass" class="form-control input-sm" placeholder="password">
+                    </div>
+                    <div v-if="code!=null">
+                        <input v-model="code" class="form-control input-sm" placeholder="Введите код из сообщения по электронной почте">
+                        <button v-on:click="submit_form_code">Проверить код и закончить регистрацию</button>
+                    </div>
+                    <p v-if="error!=null">{{ error }}</p>
+                </div>
+                <button v-on:click="submit_form_reg">Отправить код</button>
+            </div>
         </div>
-    </div>
 
-    <!-- personal area -->
-    <div v-else>
+        <!-- personal area -->
+        <div v-else>
         <!-- menu for account -->
         <div>
             <button v-on:click="account_state=0;">Профиль</button>
@@ -45,7 +56,7 @@
         </div>
         <!-- main account page with acc info -->
         <div v-if="account_state===0">
-            <p>Your account</p>
+            <h2>Your account</h2>
             <ul v-if="change_state===false">
                 <li>{{ user.name }}</li>
                 <li>{{ user.email }}</li>
@@ -61,7 +72,7 @@
         </div>
         <!-- page with history etc-->
         <div v-else-if="account_state===1">
-            <p>History</p>
+            <h2>History</h2>
             <ul v-if="user_history!=null">
                 <li v-for="item in user_history">
                     {{ item.date }} {{ item.service }}{{ item.company }} {{ item.value }}
@@ -70,14 +81,15 @@
         </div>
         <!-- page with money etc-->
         <div v-else>
-            <p>Balance</p>
-            <h2 v-if="user_history!=null">Ваш баланс: {{ user_history.balance }}</h2>
+            <h2>Balance</h2>
+            <h3 v-if="user_history!=null">Ваш баланс: {{ user_history.balance }}</h3>
             <ul v-if="user_balance!=null">
                 <li v-for="item in user_balance.history">
                     {{ item.date }} {{ item.action }}{{ item.value }}
                 </li>
             </ul>
         </div>
+    </div>
     </div>
 </div>
 <script src="https://unpkg.com/vue"></script>
